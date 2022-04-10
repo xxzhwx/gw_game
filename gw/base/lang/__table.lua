@@ -8,7 +8,7 @@ setmetatable(table.BLANK, {
 })
 
 table.empty = function (t)
-    if t == nil then return true end
+    if not t then return true end
     if next(t) then
         return false
     end
@@ -16,7 +16,7 @@ table.empty = function (t)
 end
 
 table.count = function (t)
-    if t == nil then return 0 end
+    if not t then return 0 end
 
     local c = 0
     for _,_ in pairs(t) do
@@ -26,7 +26,7 @@ table.count = function (t)
 end
 
 table.contains = function (t, value)
-    if t == nil then return false end
+    if not t then return false end
     for _,v in pairs(t) do
         if v == value then
             return true
@@ -36,7 +36,7 @@ table.contains = function (t, value)
 end
 
 table.contains_key = function (t, key)
-    if t == nil then return false end
+    if not t then return false end
     for k,_ in pairs(t) do
         if k == key then
             return true
@@ -77,7 +77,7 @@ table.each = function (t, proc, ...)
 end
 
 table.copy = function (t)
-    if t == nil then return nil end
+    if not t then return nil end
 
     local ret = {}
     for k,v in pairs(t) do
