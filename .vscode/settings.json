@@ -2,5 +2,8 @@
     "Lua.workspace.library": [
         "${3rd}/skynet/library"
     ],
-    "Lua.workspace.checkThirdParty": false
+    "Lua.workspace.checkThirdParty": false,
+    "Lua.diagnostics.globals": [
+        "class"
+    ]
 }
