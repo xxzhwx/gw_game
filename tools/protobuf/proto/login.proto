@@ -1,0 +1,23 @@
+// 获取角色列表信息
+// @id=101
+message get_player_list_req
+{
+}
+
+//  @id=102
+message get_player_list_resp
+{
+    repeated uint64 uids = 1;
+}
+
+// 创建玩家
+// @id=103
+message create_player_req
+{
+}
+
+// @id=104
+message create_player_resp
+{
+    optional uint64 uid = 1;
+}

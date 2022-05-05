@@ -1,0 +1,40 @@
+// 协议内容
+message NetMessage
+{
+    required uint32 code = 1; // 错误码
+    required uint32 proto_id = 2; // 协议ID
+    optional bytes payload = 3; // 数据
+}
+
+// 消息错误
+// @id=1
+message message_error_notify
+{
+    required uint32 error_code = 1;
+}
+
+// 心跳
+// @id=2
+message ping_req
+{
+}
+
+// @id=3
+message ping_resp
+{
+    required uint32 sec = 1; // 秒值
+    optional uint32 milli = 2; // 毫秒值
+}
+
+// 握手
+// @id=4
+message handshake_req
+{
+    required string token = 1;
+}
+
+// @id=5
+message handshake_resp
+{
+    required uint32 code = 1;
+}
