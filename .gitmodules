@@ -1,3 +1,6 @@
 [submodule "skynet"]
 	path = skynet
 	url = https://github.com/cloudwu/skynet.git
+[submodule "snextra/luaclib-src/pbc"]
+	path = snextra/luaclib-src/pbc
+	url = https://github.com/cloudwu/pbc.git
