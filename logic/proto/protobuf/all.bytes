@@ -1,0 +1,26 @@
+
+Ò
+
+base.proto"U
+
+NetMessage
+code (Rcode
+proto_id (RprotoId
+payload (Rpayload"
+
+ping_req"3
+	ping_resp
+sec (Rsec
+milli (Rmilli"%
+handshake_req
+token (	Rtoken"$
+handshake_resp
+code (Rcode
+ç
+login.proto"
+get_player_list_req"*
+get_player_list_resp
+uids (Ruids"
+create_player_req"&
+create_player_resp
+uid (Ruid

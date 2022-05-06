@@ -1,0 +1,10 @@
+return {
+	[1] = "ping_req",
+	[2] = "ping_resp",
+	[3] = "handshake_req",
+	[4] = "handshake_resp",
+	[101] = "get_player_list_req",
+	[102] = "get_player_list_resp",
+	[103] = "create_player_req",
+	[104] = "create_player_resp",
+}
