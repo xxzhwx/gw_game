@@ -1,12 +1,12 @@
 local M = {}
 
-local listeners_map = {} -- { [evt_name] = {{listener, filter}, }, }
+local listeners_registry = {} -- { [evt_name] = {{listener, filter}, }, }
 
 local function get_or_new_listeners(evt_name)
-    if not listeners_map[evt_name] then
-        listeners_map[evt_name] = {}
+    if not listeners_registry[evt_name] then
+        listeners_registry[evt_name] = {}
     end
-    return listeners_map[evt_name]
+    return listeners_registry[evt_name]
 end
 
 function M.add_listener(evt_name, func, filter)
@@ -22,7 +22,7 @@ function M.add_listener(evt_name, func, filter)
 end
 
 function M.remove_listener(evt_name, func)
-    local listeners = listeners_map[evt_name]
+    local listeners = listeners_registry[evt_name]
     if not listeners then return end
 
     for i, v in ipairs(listeners) do
@@ -34,7 +34,7 @@ function M.remove_listener(evt_name, func)
 end
 
 function M.dispatch(evt_name, ...)
-    local listeners = listeners_map[evt_name]
+    local listeners = listeners_registry[evt_name]
     if not listeners then return end
 
     for _, v in ipairs(listeners) do
