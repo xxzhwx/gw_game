@@ -23,7 +23,7 @@ function CMD.log(level, str)
     local time_desc = os.date("[%Y-%m-%d %H:%M:%S]", timestamp)
 
     table.insert(queue, {
-        level = LEVEL_DESC[level],
+        level = level,
         str = str,
         date_desc = date_desc,
         time_desc = time_desc,
@@ -55,7 +55,7 @@ local function run_once()
 
             local f = log_file[2]
             if f then
-                f:write(string.format("%s%s %s\n", info.level, info.time_desc, info.str))
+                f:write(string.format("%s%s %s\n", LEVEL_DESC[info.level], info.time_desc, info.str))
             end
         end
     end, debug.traceback)
