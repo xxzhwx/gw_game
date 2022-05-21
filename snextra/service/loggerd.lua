@@ -1,8 +1,9 @@
 local skynet = require "skynet"
 require "skynet.manager"
 
-local log_dir = skynet.getenv("log_dir") or "./log"
-local log_filename = skynet.getenv("log_filename") or "default"
+local logpath = skynet.getenv("logpath") or "./log"
+local logfilename = skynet.getenv("logfilename") or "skynet"
+local is_daemon = skynet.getenv("daemon") ~= nil
 
 local is_shutdown = false
 local queue = {}
@@ -13,16 +14,28 @@ local LEVEL_DESC = {
     [2] = "[info ]",
     [3] = "[warn ]",
     [4] = "[error]",
+
+    [5] = "" -- skynet.error
+}
+
+local LEVEL_COLOR = {
+    [1] = "\x1b[36m", -- "\x1b[32m"
+    [2] = "\x1b[34m",
+    [3] = "\x1b[33m",
+    [4] = "\x1b[31m",
+
+    [5] = "\x1b[0m",
 }
 
 local CMD = {}
 
-function CMD.log(level, str)
+function CMD.log(source, level, str)
     local timestamp = math.floor(skynet.time())
     local date_desc = os.date("%Y%m%d", timestamp)
     local time_desc = os.date("[%Y-%m-%d %H:%M:%S]", timestamp)
 
     table.insert(queue, {
+        source = source,
         level = level,
         str = str,
         date_desc = date_desc,
@@ -39,35 +52,49 @@ local function close_log_file()
     end
 end
 
-local function run_once()
-    local ok, err = xpcall(function ()
-        for _, info in ipairs(queue) do
-            local filepath = string.format("%s/%s_%s.log", log_dir, log_filename, info.date_desc)
-            if filepath ~= log_file[1] then
-                close_log_file()
+local function run_once_in_console_mode()
+    for _, info in ipairs(queue) do
+        print(string.format("%s[:%08x]%s%s %s%s",
+            LEVEL_COLOR[info.level],
+            info.source,
+            info.time_desc,
+            LEVEL_DESC[info.level],
+            info.str,
+            "\x1b[0m")
+        )
+    end
 
-                local f = io.open(filepath, "a+")
-                if f then
-                    log_file[1] = filepath
-                    log_file[2] = f
-                end
-            end
+    if #queue > 0 then
+        queue = {}
+    end
+end
 
-            local f = log_file[2]
+local function run_once_in_daemon_mode()
+    for _, info in ipairs(queue) do
+        local filepath = string.format("%s/%s_%s.log", logpath, logfilename, info.date_desc)
+        if filepath ~= log_file[1] then
+            close_log_file()
+
+            local f = io.open(filepath, "a+")
             if f then
-                f:write(string.format("%s%s %s\n", LEVEL_DESC[info.level], info.time_desc, info.str))
+                log_file[1] = filepath
+                log_file[2] = f
             end
         end
 
-        queue = {}
-    end, debug.traceback)
-
-    if not ok then
-        skynet.error(err)
+        local f = log_file[2]
+        if f then
+            f:write(string.format("[:%08x]%s%s %s\n", info.source, info.time_desc, LEVEL_DESC[info.level], info.str))
+        end
     end
 
-    if log_file[2] then
-        log_file[2]:flush()
+    if #queue > 0 then
+        queue = {}
+    end
+
+    local f = log_file[2]
+    if f then
+        f:flush()
     end
 
     if is_shutdown then
@@ -75,12 +102,17 @@ local function run_once()
     end
 end
 
+local run_once = run_once_in_console_mode
+if is_daemon then
+    run_once = run_once_in_daemon_mode
+end
+
 local function run()
     while true do
-        skynet.sleep(300)
         if not is_shutdown then
             run_once()
         end
+        skynet.sleep(100)
     end
 end
 
@@ -90,16 +122,25 @@ function CMD.shutdown()
     run_once()
 end
 
+skynet.register_protocol {
+	name = "text",
+	id = skynet.PTYPE_TEXT,
+	unpack = skynet.tostring,
+	dispatch = function(session, source, msg)
+		CMD.log(source, 5, msg) -- 5 : skynet.error
+	end
+}
+
 skynet.start(function ()
-    os.execute("mkdir -p " .. log_dir)
+    os.execute("mkdir -p " .. logpath)
 
     skynet.register(".loggerd")
     skynet.dispatch("lua", function (session, source, cmd, ...)
         local f = assert(CMD[cmd], "unknown command: " .. cmd)
         if session > 0 then
-            skynet.retpack(f(...))
+            skynet.retpack(f(source, ...))
         else
-            f(...)
+            f(source, ...)
         end
     end)
 

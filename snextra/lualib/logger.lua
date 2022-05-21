@@ -1,4 +1,7 @@
 local skynet = require "skynet"
+
+local is_user_logger = skynet.getenv("logger") ~= nil
+
 local logger = {}
 
 local LOG_LEVEL = {
@@ -10,12 +13,12 @@ local LOG_LEVEL = {
 
 local function init_log_level()
     if not logger.level then
-        local level = skynet.getenv("log_level")
-        if not level or not LOG_LEVEL[level] then
-            level = LOG_LEVEL.debug
+        local name = skynet.getenv("loglevel")
+        if not name or not LOG_LEVEL[name] then
+            name = "debug"
         end
 
-        logger.level = level
+        logger.level = LOG_LEVEL[name]
     end
 end
 
@@ -28,7 +31,11 @@ end
 
 local function log(level, format, ...)
     local str = string.format(format, ...)
-    skynet.send(".loggerd", "lua", "log", level, str)
+    if is_user_logger then
+        skynet.send(".logger", "lua", "log", level, str)
+    else
+        skynet.error(str)
+    end
 end
 
 function logger.debug(format, ...)
@@ -57,8 +64,9 @@ end
 
 init_log_level()
 
-skynet.init(function ()
-    skynet.uniqueservice("loggerd")
-end)
+--- 只需配置 dev_common.conf `logger` 和 `logservice` 项
+-- skynet.init(function ()
+--     skynet.uniqueservice("loggerd")
+-- end)
 
 return logger
