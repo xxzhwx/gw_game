@@ -32,25 +32,25 @@ local function log(level, format, ...)
 end
 
 function logger.debug(format, ...)
-    if logger.level >= LOG_LEVEL.debug then
+    if logger.level <= LOG_LEVEL.debug then
         log(LOG_LEVEL.debug, format, ...)
     end
 end
 
 function logger.info(format, ...)
-    if logger.level >= LOG_LEVEL.info then
+    if logger.level <= LOG_LEVEL.info then
         log(LOG_LEVEL.info, format, ...)
     end
 end
 
 function logger.warn(format, ...)
-    if logger.level >= LOG_LEVEL.warn then
+    if logger.level <= LOG_LEVEL.warn then
         log(LOG_LEVEL.warn, format, ...)
     end
 end
 
 function logger.error(format, ...)
-    if logger.level >= LOG_LEVEL.error then
+    if logger.level <= LOG_LEVEL.error then
         log(LOG_LEVEL.error, format, ...)
     end
 end

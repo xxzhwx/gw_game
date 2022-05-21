@@ -10,8 +10,8 @@ local log_file = {}
 
 local LEVEL_DESC = {
     [1] = "[debug]",
-    [2] = "[info]",
-    [3] = "[warn]",
+    [2] = "[info ]",
+    [3] = "[warn ]",
     [4] = "[error]",
 }
 
@@ -42,11 +42,11 @@ end
 local function run_once()
     local ok, err = xpcall(function ()
         for _, info in ipairs(queue) do
-            local filepath = string.format("%s_%s.log", log_filename, info.date_desc)
+            local filepath = string.format("%s/%s_%s.log", log_dir, log_filename, info.date_desc)
             if filepath ~= log_file[1] then
                 close_log_file()
 
-                local f = io.open(filepath)
+                local f = io.open(filepath, "a+")
                 if f then
                     log_file[1] = filepath
                     log_file[2] = f
@@ -58,10 +58,16 @@ local function run_once()
                 f:write(string.format("%s%s %s\n", LEVEL_DESC[info.level], info.time_desc, info.str))
             end
         end
+
+        queue = {}
     end, debug.traceback)
 
     if not ok then
         skynet.error(err)
+    end
+
+    if log_file[2] then
+        log_file[2]:flush()
     end
 
     if is_shutdown then
