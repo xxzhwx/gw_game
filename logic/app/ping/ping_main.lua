@@ -3,7 +3,11 @@ local logger = require "logger"
 
 skynet.start(function ()
     skynet.error("pingpong_main start")
-    logger.debug("debug")
+    logger.debug("hello")
+    logger.info("hello")
+    logger.warn("hello")
+    logger.error("hello")
+
     local ping1 = skynet.newservice("app/ping/ping")
     local ping2 = skynet.newservice("app/ping/ping")
 

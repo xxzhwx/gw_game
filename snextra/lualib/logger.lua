@@ -31,6 +31,14 @@ end
 
 local function log(level, format, ...)
     local str = string.format(format, ...)
+    if level >= LOG_LEVEL.warn then
+        local info = debug.getinfo(3)
+        if info then
+            local filename = string.match(info.short_src, "[^/.]+.lua")
+            str = string.format("%s  <%s:%d>", str, filename, info.currentline)
+        end
+    end
+
     if is_user_logger then
         skynet.send(".logger", "lua", "log", level, str)
     else
