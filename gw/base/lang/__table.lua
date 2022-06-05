@@ -68,12 +68,22 @@ table.map = function (t, proc, ...)
     return ret
 end
 
-table.each = function (t, proc, ...)
+table.walk = function (t, proc, ...)
     for k, v in pairs(t) do
         if proc(k, v, ...) then
             break
         end
     end
+end
+
+table.filter = function (t, proc)
+    local ret = {}
+    for k, v in pairs(t) do
+        if proc(k, v) then
+            ret[k] = v
+        end
+    end
+    return ret
 end
 
 table.copy = function (t)
@@ -146,4 +156,30 @@ end
 
 table.tostring = function (t)
     return _toTreeString(t, 0)
+end
+
+-------- array operation --------
+
+table.remove_by_value = function (t, value, all)
+    local count = 0
+    for i = #t, 1, -1 do
+        if t[i] == value then
+            table.remove(t, i)
+            count = count + 1
+
+            if not all then
+                break
+            end
+        end
+    end
+    return count
+end
+
+table.shuffle = function (t)
+end
+
+table.binary_insert = function (t, value, comp_f)
+end
+
+table.binary_search = function (t, value, comp_f, equal_f)
 end

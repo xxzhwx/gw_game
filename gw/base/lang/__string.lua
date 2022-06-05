@@ -53,18 +53,29 @@ string.isalpha = function (s)
     return true
 end
 
-string.escape = function (s)
-    s = string.gsub(s, "([$=+%c])", function (c)
-        return string.format("%%%02X", string.byte(c))
-    end)
-
-    return string.gsub(s, " ", "+")
+local function urlencodechar(char)
+    return "%" .. ("%02X"):format(char:byte())
 end
 
-string.unescape = function (s)
-    s = string.gsub(s, "+", " ")
+string.urlencode = function (input)
+    input = input:gsub("\n", "\r\n")
+    input = input:gsub("([^%w%.%- ])", urlencodechar)
+    return input:gsub(" ", "+")
+end
 
-    return string.gsub(s, "%%(%x%x)", function (h)
-        return string.char(tonumber(h, 16))
+string.urldecode = function (input)
+    input = input:gsub("+", " ")
+    input = input:gsub("%%(%x%x)", function (h)
+        return string.char(tonumber(h, 16) or 0)
     end)
+    input = input:gsub("\r\n", "\n")
+end
+
+string.split = function (input, sep)
+    local parts = {}
+    sep = sep and "([^"..sep.."]+)" or "([^\t]+)"
+    input:gsub(sep, function (c)
+        table.insert(parts, c)
+    end)
+    return parts
 end
